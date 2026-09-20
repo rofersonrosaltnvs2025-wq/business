@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Express Ride | Door-to-Door Car Booking & Rental Service</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .hero-bg {
+            background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.85)), url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1600&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md shadow-sm border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-brand-600 text-white p-2.5 rounded-xl shadow-md shadow-brand-500/20">
+                    <i class="fa-solid fa-car-side text-2xl"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-extrabold tracking-tight text-slate-900 block leading-none">EXPRESS RIDE</span>
+                    <span class="text-xs font-semibold text-brand-600 tracking-wider uppercase">Door-to-Door Service</span>
+                </div>
+            </div>
+
+            <!-- Desktop Nav Links -->
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-semibold text-slate-600">
+                <a href="#home" class="hover:text-brand-600 transition-colors">Home</a>
+                <a href="#booking-section" class="hover:text-brand-600 transition-colors">Book Now</a>
+                <a href="#rates" class="hover:text-brand-600 transition-colors">Vehicles & Rates</a>
+                <a href="#my-bookings" class="hover:text-brand-600 transition-colors">My Bookings</a>
+            </nav>
+
+            <!-- Auth Controls -->
+            <div class="flex items-center space-x-3">
+                <div id="user-info" class="hidden flex items-center space-x-3">
+                    <span id="user-display-name" class="text-sm font-semibold text-slate-700"></span>
+                    <button onclick="logout()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2 px-3 rounded-lg transition-colors">
+                        Logout
+                    </button>
+                </div>
+                <button id="login-btn" onclick="openAuthModal('login')" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-md shadow-brand-500/20 transition-all hover:-translate-y-0.5">
+                    <i class="fa-solid fa-user mr-2"></i> Login / Register
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section id="home" class="hero-bg py-20 lg:py-28 text-white relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            <span class="inline-block bg-brand-500/20 text-brand-300 border border-brand-500/30 font-semibold text-xs tracking-wider uppercase px-4 py-1.5 rounded-full mb-4">
+                🚀 Safe, Professional & Fast Travel
+            </span>
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto leading-tight">
+                Door-to-Door Private Transport & Car Rentals
+            </h1>
+            <p class="mt-4 text-base sm:text-lg text-slate-300 max-w-2xl mx-auto">
+                Direct pickup from your doorstep to your exact destination! Enjoy hassle-free rides with experienced drivers and clean vehicles.
+            </p>
+            <div class="mt-8 flex justify-center gap-4">
+                <a href="#booking-section" class="bg-brand-600 hover:bg-brand-500 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-brand-600/30 transition-all hover:-translate-y-0.5">
+                    Book Your Ride Now <i class="fa-solid fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+
+        <!-- BOOKING FORM SECTION -->
+        <section id="booking-section" class="scroll-mt-24">
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+                <div class="bg-slate-900 text-white p-6 sm:p-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold">Reserve Your Transport</h2>
+                        <p class="text-slate-400 text-sm mt-1">Fill in your travel details below to get an instant rate estimate.</p>
+                    </div>
+                    <span class="self-start sm:self-auto bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+                        <i class="fa-solid fa-bolt"></i> Instant Quote Active
+                    </span>
+                </div>
+
+                <form id="booking-form" onsubmit="handleBookingSubmit(event)" class="p-6 sm:p-8 space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Pickup Location -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">
+                                <i class="fa-solid fa-location-dot text-brand-600 mr-1.5"></i> Pickup Address (Door-to-door)
+                            </label>
+                            <input type="text" id="pickup" required placeholder="House No., Street, Barangay, City" 
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm">
+                        </div>
+
+                        <!-- Drop-off Zone -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">
+                                <i class="fa-solid fa-flag-checkered text-emerald-600 mr-1.5"></i> Destination Region / Zone
+                            </label>
+                            <select id="destination-zone" required onchange="calculatePrice()" 
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm bg-white">
+                                <option value="" disabled selected>Select Destination Zone</option>
+                                <option value="metro_manila">Within Metro City / Local Zone</option>
+                                <option value="bulacan_pampanga">Central District / North Zone</option>
+                                <option value="cavite_laguna">Southern Provinces / South Zone</option>
+                                <option value="baguio_ilocos">Highland / Far North Region</option>
+                                <option value="bicol">Coastal / Long Distance Region</option>
+                            </select>
+                        </div>
+
+                        <!-- Specific Destination Detail -->
+                        <div class="space-y-2 md:col-span-2">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">
+                                Exact Drop-off Destination Address
+                            </label>
+                            <input type="text" id="destination-exact" required placeholder="Hotel Name, Resort, Street, City" 
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm">
+                        </div>
+
+                        <!-- Date -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">
+                                <i class="fa-solid fa-calendar text-brand-600 mr-1.5"></i> Travel Date
+                            </label>
+                            <input type="date" id="pickup-date" required onchange="calculatePrice()"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm">
+                        </div>
+
+                        <!-- Time & Passengers -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">
+                                    <i class="fa-solid fa-clock text-brand-600 mr-1.5"></i> Pickup Time
+                                </label>
+                                <input type="time" id="pickup-time" required
+                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">
+                                    <i class="fa-solid fa-users text-brand-600 mr-1.5"></i> Passengers
+                                </label>
+                                <input type="number" id="passengers" min="1" max="15" value="1" required
+                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vehicle Selection -->
+                    <div class="space-y-3">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">
+                            <i class="fa-solid fa-car text-brand-600 mr-1.5"></i> Select Vehicle Type
+                        </label>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <!-- Vehicle Card 1 -->
+                            <label class="cursor-pointer">
+                                <input type="radio" name="vehicle" value="sedan" checked onchange="calculatePrice()" class="peer hidden">
+                                <div class="p-5 border-2 rounded-2xl border-slate-200 peer-checked:border-brand-600 peer-checked:bg-brand-50/50 transition-all text-center hover:border-slate-300">
+                                    <i class="fa-solid fa-car text-3xl text-slate-700 mb-2"></i>
+                                    <h3 class="font-bold text-slate-900">Sedan</h3>
+                                    <p class="text-xs text-slate-500 mt-1">Up to 4 Passengers</p>
+                                    <span class="inline-block mt-3 text-xs font-semibold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md">Economy</span>
+                                </div>
+                            </label>
+
+                            <!-- Vehicle Card 2 -->
+                            <label class="cursor-pointer">
+                                <input type="radio" name="vehicle" value="mpv" onchange="calculatePrice()" class="peer hidden">
+                                <div class="p-5 border-2 rounded-2xl border-slate-200 peer-checked:border-brand-600 peer-checked:bg-brand-50/50 transition-all text-center hover:border-slate-300">
+                                    <i class="fa-solid fa-van-shuttle text-3xl text-slate-700 mb-2"></i>
+                                    <h3 class="font-bold text-slate-900">SUV / MPV</h3>
+                                    <p class="text-xs text-slate-500 mt-1">Up to 7 Passengers</p>
+                                    <span class="inline-block mt-3 text-xs font-semibold bg-brand-100 text-brand-700 px-2.5 py-1 rounded-md">Most Popular</span>
+                                </div>
+                            </label>
+
+                            <!-- Vehicle Card 3 -->
+                            <label class="cursor-pointer">
+                                <input type="radio" name="vehicle" value="van" onchange="calculatePrice()" class="peer hidden">
+                                <div class="p-5 border-2 rounded-2xl border-slate-200 peer-checked:border-brand-600 peer-checked:bg-brand-50/50 transition-all text-center hover:border-slate-300">
+                                    <i class="fa-solid fa-bus text-3xl text-slate-700 mb-2"></i>
+                                    <h3 class="font-bold text-slate-900">Commuter Van</h3>
+                                    <p class="text-xs text-slate-500 mt-1">Up to 14 Passengers</p>
+                                    <span class="inline-block mt-3 text-xs font-semibold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-md">Group Travel</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Price Estimate Box -->
+                    <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6">
+                        <div class="space-y-1 text-center md:text-left">
+                            <span class="text-xs font-bold uppercase text-slate-500">Estimated Total Rate</span>
+                            <div class="text-3xl font-extrabold text-slate-900" id="total-price">₱0.00</div>
+                            <p class="text-xs text-slate-500" id="price-breakdown">Includes driver fee, fuel charge, and door-to-door service.</p>
+                        </div>
+                        <button type="submit" class="w-full md:w-auto bg-brand-600 hover:bg-brand-700 text-white font-bold px-10 py-4 rounded-xl shadow-lg shadow-brand-600/30 transition-all text-base">
+                            Confirm Booking <i class="fa-solid fa-circle-check ml-2"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- RATES & FLEET OVERVIEW SECTION -->
+        <section id="rates" class="scroll-mt-24">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <h2 class="text-3xl font-bold text-slate-900">Vehicles & Pricing Rates</h2>
+                <p class="text-slate-600 mt-2">Transparent rates with no hidden charges!</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Fleet Card 1 -->
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                    <img src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?q=80&w=600&auto=format&fit=crop" alt="Sedan" class="w-full h-48 object-cover">
+                    <div class="p-6 space-y-4">
+                        <h3 class="text-xl font-bold text-slate-900">Sedan Rental</h3>
+                        <ul class="text-sm text-slate-600 space-y-2">
+                            <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Professional Chauffeur</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Max 4 Passengers + Luggage</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Air Conditioned & Clean Interior</li>
+                        </ul>
+                        <div class="pt-4 border-t border-slate-100 font-bold text-slate-900">
+                            Base rate starting @ <span class="text-brand-600">₱1,500</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fleet Card 2 -->
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                    <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=600&auto=format&fit=crop" alt="MPV SUV" class="w-full h-48 object-cover">
+                    <div class="p-6 space-y-4">
+                        <h3 class="text-xl font-bold text-slate-900">SUV / MPV Rental</h3>
+                        <ul class="text-sm text-slate-600 space-y-2">
+                            <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Perfect for Family Travel</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Max 7 Passengers</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Spacious Cargo Capacity</li>
+                        </ul>
+                        <div class="pt-4 border-t border-slate-100 font-bold text-slate-900">
+                            Base rate starting @ <span class="text-brand-600">₱2,500</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fleet Card 3 -->
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                    <img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?q=80&w=600&auto=format&fit=crop" alt="Van" class="w-full h-48 object-cover">
+                    <div class="p-6 space-y-4">
+                        <h3 class="text-xl font-bold text-slate-900">Commuter Van</h3>
+                        <ul class="text-sm text-slate-600 space-y-2">
+                            <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Ideal for Large Groups / Outings</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Max 12 - 14 Passengers</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Long Distance Travel Ready</li>
+                        </ul>
+                        <div class="pt-4 border-t border-slate-100 font-bold text-slate-900">
+                            Base rate starting @ <span class="text-brand-600">₱3,800</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- USER BOOKINGS DASHBOARD -->
+        <section id="my-bookings" class="scroll-mt-24">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900">My Bookings</h2>
+                        <p class="text-slate-500 text-sm mt-1">Review and manage your scheduled transport bookings.</p>
+                    </div>
+                    <button onclick="renderBookings()" class="text-brand-600 hover:text-brand-700 text-sm font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-rotate-right"></i> Refresh
+                    </button>
+                </div>
+
+                <!-- Empty State -->
+                <div id="bookings-empty" class="text-center py-12 hidden">
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                        <i class="fa-solid fa-calendar-xmark text-2xl"></i>
+                    </div>
+                    <p class="text-slate-600 font-medium">No active bookings found.</p>
+                    <p class="text-slate-400 text-xs mt-1">Book your first ride using the form above!</p>
+                </div>
+
+                <!-- Bookings List -->
+                <div id="bookings-list" class="space-y-4">
+                    <!-- Dynamic rendering of bookings will go here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- AUTHENTICATION MODAL (LOGIN / REGISTER) -->
+    <div id="auth-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 sm:p-8 relative">
+            <button onclick="closeAuthModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <!-- Login Form -->
+            <div id="login-form-container">
+                <h3 class="text-2xl font-bold text-slate-900">Sign In to Your Account</h3>
+                <p class="text-slate-500 text-sm mt-1">Enter your details below to continue booking.</p>
+
+                <form onsubmit="handleLogin(event)" class="mt-6 space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Email Address</label>
+                        <input type="email" id="login-email" required placeholder="john@example.com"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Password</label>
+                        <input type="password" id="login-password" required placeholder="••••••••"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none text-sm">
+                    </div>
+                    <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-sm">
+                        Sign In
+                    </button>
+                </form>
+
+                <div class="mt-6 text-center text-sm text-slate-600">
+                    Don't have an account? 
+                    <button onclick="toggleAuthMode('register')" class="text-brand-600 font-bold hover:underline">Register here</button>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form-container" class="hidden">
+                <h3 class="text-2xl font-bold text-slate-900">Create an Account</h3>
+                <p class="text-slate-500 text-sm mt-1">Quick and free registration.</p>
+
+                <form onsubmit="handleRegister(event)" class="mt-6 space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Full Name</label>
+                        <input type="text" id="reg-name" required placeholder="John Doe"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Phone Number</label>
+                        <input type="tel" id="reg-phone" required placeholder="+1 234 567 890"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Email Address</label>
+                        <input type="email" id="reg-email" required placeholder="john@example.com"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Password</label>
+                        <input type="password" id="reg-password" required placeholder="••••••••"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none text-sm">
+                    </div>
+                    <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-sm">
+                        Create Account
+                    </button>
+                </form>
+
+                <div class="mt-6 text-center text-sm text-slate-600">
+                    Already have an account? 
+                    <button onclick="toggleAuthMode('login')" class="text-brand-600 font-bold hover:underline">Sign in here</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-800">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span id="toast-message" class="text-sm font-medium">Notification message</span>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+            <div class="flex justify-center items-center space-x-2 text-white font-bold text-lg">
+                <i class="fa-solid fa-car-side text-brand-500"></i>
+                <span>EXPRESS RIDE</span>
+            </div>
+            <p class="text-xs text-slate-500 max-w-md mx-auto">
+                Door-to-Door Car Booking & Transport Services. Providing safe, comfortable, and reliable rides.
+            </p>
+            <p class="text-xs text-slate-600">
+                &copy; 2026 Express Ride Services. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // --- CONSTANTS & CONFIGURATION ---
+        const PRICING_MATRIX = {
+            sedan: { base: 1500, label: "Sedan (4 Seats)", multiplier: 1.0 },
+            mpv: { base: 2500, label: "SUV / MPV (7 Seats)", multiplier: 1.3 },
+            van: { base: 3800, label: "Commuter Van (14 Seats)", multiplier: 1.7 }
+        };
+
+        const ZONE_RATES = {
+            metro_manila: 0,
+            bulacan_pampanga: 800,
+            cavite_laguna: 700,
+            baguio_ilocos: 3500,
+            bicol: 4500
+        };
+
+        // --- STATE MANAGEMENT ---
+        let currentUser = JSON.parse(localStorage.getItem('eb_user')) || null;
+        let bookings = JSON.parse(localStorage.getItem('eb_bookings')) || [];
+
+        // Set default date picker to tomorrow
+        window.addEventListener('DOMContentLoaded', () => {
+            const dateInput = document.getElementById('pickup-date');
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            dateInput.min = new Date().toISOString().split('T')[0];
+            dateInput.value = tomorrow.toISOString().split('T')[0];
+
+            updateUserUI();
+            calculatePrice();
+            renderBookings();
+        });
+
+        // --- PRICE CALCULATOR LOGIC ---
+        function calculatePrice() {
+            const vehicleType = document.querySelector('input[name="vehicle"]:checked')?.value || 'sedan';
+            const zone = document.getElementById('destination-zone').value;
+
+            const vehicleConfig = PRICING_MATRIX[vehicleType];
+            const zoneAdditional = ZONE_RATES[zone] || 0;
+
+            let total = vehicleConfig.base + (zoneAdditional * vehicleConfig.multiplier);
+            
+            document.getElementById('total-price').innerText = `₱${total.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('price-breakdown').innerText = 
+                `${vehicleConfig.label} • Base Rate: ₱${vehicleConfig.base.toLocaleString()} ${zoneAdditional ? '+ Distance adjustment' : ''}`;
+
+            return total;
+        }
+
+        // --- AUTHENTICATION HANDLERS ---
+        function openAuthModal(mode = 'login') {
+            toggleAuthMode(mode);
+            document.getElementById('auth-modal').classList.remove('hidden');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('auth-modal').classList.add('hidden');
+        }
+
+        function toggleAuthMode(mode) {
+            if (mode === 'login') {
+                document.getElementById('login-form-container').classList.remove('hidden');
+                document.getElementById('register-form-container').classList.add('hidden');
+            } else {
+                document.getElementById('login-form-container').classList.add('hidden');
+                document.getElementById('register-form-container').classList.remove('hidden');
+            }
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            
+            // Simulating authentication
+            currentUser = {
+                name: email.split('@')[0],
+                email: email
+            };
+
+            localStorage.setItem('eb_user', JSON.stringify(currentUser));
+            updateUserUI();
+            closeAuthModal();
+            showToast(`Welcome back, ${currentUser.name}!`);
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+
+            currentUser = { name, email };
+            localStorage.setItem('eb_user', JSON.stringify(currentUser));
+            updateUserUI();
+            closeAuthModal();
+            showToast(`Account created successfully! Welcome, ${name}.`);
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('eb_user');
+            updateUserUI();
+            showToast("You have been logged out.");
+        }
+
+        function updateUserUI() {
+            const userInfoEl = document.getElementById('user-info');
+            const loginBtn = document.getElementById('login-btn');
+            const userDisplayName = document.getElementById('user-display-name');
+
+            if (currentUser) {
+                userInfoEl.classList.remove('hidden');
+                loginBtn.classList.add('hidden');
+                userDisplayName.innerText = `👋 Hi, ${currentUser.name}`;
+            } else {
+                userInfoEl.classList.add('hidden');
+                loginBtn.classList.remove('hidden');
+            }
+        }
+
+        // --- BOOKING SUBMISSION LOGIC ---
+        function handleBookingSubmit(event) {
+            event.preventDefault();
+
+            if (!currentUser) {
+                showToast("Please log in first to confirm your booking.", "error");
+                openAuthModal('login');
+                return;
+            }
+
+            const pickup = document.getElementById('pickup').value;
+            const destinationExact = document.getElementById('destination-exact').value;
+            const destinationZone = document.getElementById('destination-zone').value;
+            const date = document.getElementById('pickup-date').value;
+            const time = document.getElementById('pickup-time').value;
+            const passengers = document.getElementById('passengers').value;
+            const vehicleType = document.querySelector('input[name="vehicle"]:checked').value;
+            const price = calculatePrice();
+
+            const newBooking = {
+                id: 'EB-' + Math.floor(100000 + Math.random() * 900000),
+                userEmail: currentUser.email,
+                pickup,
+                destination: destinationExact,
+                zone: destinationZone,
+                date,
+                time,
+                passengers,
+                vehicle: PRICING_MATRIX[vehicleType].label,
+                price,
+                status: 'Confirmed',
+                createdAt: new Date().toISOString()
+            };
+
+            bookings.unshift(newBooking);
+            localStorage.setItem('eb_bookings', JSON.stringify(bookings));
+
+            // Reset Form & Notify
+            document.getElementById('booking-form').reset();
+            calculatePrice();
+            renderBookings();
+
+            showToast("Booking successful! Your ride is confirmed.");
+            document.getElementById('my-bookings').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // --- RENDER BOOKINGS ---
+        function renderBookings() {
+            const container = document.getElementById('bookings-list');
+            const emptyState = document.getElementById('bookings-empty');
+
+            // Filter bookings for logged-in user if available, or show all local ones
+            const userBookings = currentUser 
+                ? bookings.filter(b => b.userEmail === currentUser.email)
+                : bookings;
+
+            if (userBookings.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.innerHTML = userBookings.map(item => `
+                <div class="border border-slate-200 rounded-2xl p-5 hover:border-brand-300 transition-all bg-white flex flex-col md:flex-row justify-between md:items-center gap-4 shadow-sm">
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md">${item.id}</span>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800">
+                                <i class="fa-solid fa-circle-check text-xs mr-1"></i> ${item.status}
+                            </span>
+                        </div>
+                        <div class="font-bold text-slate-900 text-lg">
+                            ${item.pickup} <i class="fa-solid fa-arrow-right text-xs text-slate-400 mx-2"></i> ${item.destination}
+                        </div>
+                        <div class="text-xs text-slate-500 flex flex-wrap gap-4">
+                            <span><i class="fa-solid fa-calendar text-brand-600 mr-1"></i> ${item.date} (${item.time})</span>
+                            <span><i class="fa-solid fa-car text-brand-600 mr-1"></i> ${item.vehicle}</span>
+                            <span><i class="fa-solid fa-users text-brand-600 mr-1"></i> ${item.passengers || 1} Pax</span>
+                        </div>
+                    </div>
+                    <div class="flex md:flex-col justify-between items-end gap-2 border-t md:border-t-0 pt-3 md:pt-0 border-slate-100">
+                        <div class="text-right">
+                            <span class="text-xs text-slate-400 block">Total Rate</span>
+                            <span class="text-xl font-extrabold text-brand-600">₱${item.price.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+                        </div>
+                        <button onclick="cancelBooking('${item.id}')" class="text-xs text-rose-600 hover:text-rose-700 font-semibold">
+                            Cancel Booking
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function cancelBooking(id) {
+            if (confirm("Are you sure you want to cancel this booking?")) {
+                bookings = bookings.filter(b => b.id !== id);
+                localStorage.setItem('eb_bookings', JSON.stringify(bookings));
+                renderBookings();
+                showToast("Booking cancelled.");
+            }
+        }
+
+        // --- TOAST NOTIFICATIONS ---
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.innerText = message;
+            if (type === 'error') {
+                toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
