@@ -30,7 +30,7 @@
 
     <!-- Web App URL Config -->
     <script>
-        const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw_UmmAhq3IbfCalXoQbnwfSBp9PQxpsI24UgYXjyF6UCTwyq1OzEJg_oby3U5ris1T/exec";
+        const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxOWlI8BrxIruBK175XZJB_2DZzT8eTN1Kpuhalc_9Wv0oLhM3WkI-jP4V6dUetoHE/exec";
         const RATE_PER_HEAD = 750;
         const MAX_SEATS = 6;
         let currentAvailableSeats = 6;
@@ -121,7 +121,7 @@
                 <!-- Pickup Address -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1" for="pickupAddress">
-                        Pickup/Drop Off Address (Door-to-Door) <span class="text-red-500">*</span>
+                        Pickup Address (Door-to-Door) <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
@@ -129,24 +129,6 @@
                         </span>
                         <input type="text" id="pickupAddress" required placeholder="House No., Street, Barangay, City" 
                             class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm">
-                    </div>
-                </div>
-
-                <!-- Destination Selection -->
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1" for="destinationSelect">
-                        Destination / Route <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                            <i class="fa-solid fa-route"></i>
-                        </span>
-                        <select id="destinationSelect" name="destination" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm" required onchange="updateDestinationSummary()">
-                            <option value="To Wawa Port">To Wawa Port</option>
-                            <option value="From Wawa Port">From Wawa Port</option>
-                            <option value="To Calatagan">To Calatagan</option>
-                            <option value="From Calatagan">From Calatagan</option>
-                        </select>
                     </div>
                 </div>
 
@@ -192,7 +174,7 @@
                 <div class="bg-sky-50 border border-sky-100 rounded-xl p-4 flex justify-between items-center">
                     <div>
                         <p class="text-xs text-sky-800 font-medium">Destination</p>
-                        <p id="summaryDestination" class="text-sm font-bold text-slate-900">To Wawa Port</p>
+                        <p class="text-sm font-bold text-slate-900">WAWA PORT BATANGAS</p>
                     </div>
                     <div class="text-right">
                         <p class="text-xs text-sky-800 font-medium">Total Amount</p>
@@ -258,7 +240,6 @@
             <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs text-slate-600 text-left space-y-1">
                 <p><strong>Booking Reference:</strong> <span id="modalRef"></span></p>
                 <p><strong>Name:</strong> <span id="modalName"></span></p>
-                <p><strong>Destination:</strong> <span id="modalDestination"></span></p>
                 <p><strong>Total Fare:</strong> <span id="modalFare"></span></p>
             </div>
             <button onclick="closeModal('successModal')" class="w-full bg-slate-900 text-white font-bold py-2.5 rounded-xl hover:bg-slate-800 transition">
@@ -289,7 +270,7 @@
                     <h4 class="text-sm font-bold text-slate-900 uppercase">Terms & Conditions</h4>
                     <p>Welcome to <strong>ROFS TRANSPORTATION SERVICES</strong>. By submitting a booking request on our website, you agree to comply with and be bound by the following terms and conditions:</p>
                     <ul class="list-disc pl-4 space-y-1">
-                        <li><strong>Service Scope:</strong> We provide door-to-door shuttle transfer services operating between designated pickup points and ports using franchised 7-seater passenger vehicles.</li>
+                        <li><strong>Service Scope:</strong> We provide door-to-door shuttle transfer services operating between designated pickup points and Wawa Port Batangas using franchised 7-seater passenger vehicles.</li>
                         <li><strong>Seat Fare:</strong> The standard fare rate is fixed at <strong>₱750 per passenger head</strong>. Maximum booking capacity is set at 6 passengers per vehicle group.</li>
                         <li><strong>Pickup Guidelines:</strong> Passengers must be ready at their designated door-to-door pickup location 15 minutes prior to the scheduled pickup time. Drivers will wait up to a maximum of 15 minutes before proceeding to keep on schedule.</li>
                         <li><strong>Luggage Allowance:</strong> Each passenger is allowed 1 medium luggage/bag plus 1 hand-carry item. Oversized luggage must be declared in advance.</li>
@@ -359,11 +340,6 @@
             document.getElementById('totalPrice').innerText = '₱' + total.toLocaleString();
         }
 
-        function updateDestinationSummary() {
-            const destinationValue = document.getElementById('destinationSelect').value;
-            document.getElementById('summaryDestination').innerText = destinationValue;
-        }
-
         async function checkAvailability() {
             const selectedDate = document.getElementById('travelDate').value;
             const noticeBox = document.getElementById('availabilityNotice');
@@ -422,7 +398,6 @@
                 customerName: document.getElementById('customerName').value,
                 phone: document.getElementById('phone').value,
                 pickupAddress: document.getElementById('pickupAddress').value,
-                destination: document.getElementById('destinationSelect').value,
                 travelDate: document.getElementById('travelDate').value,
                 passengers: document.getElementById('passengers').value,
                 totalAmount: '₱' + (selectedPax * RATE_PER_HEAD)
@@ -431,7 +406,6 @@
             // 1. Show Success Modal instantly
             document.getElementById('modalRef').innerText = bookingData.bookingId;
             document.getElementById('modalName').innerText = bookingData.customerName;
-            document.getElementById('modalDestination').innerText = bookingData.destination;
             document.getElementById('modalFare').innerText = bookingData.totalAmount;
             document.getElementById('successModal').classList.remove('hidden');
 
@@ -448,7 +422,6 @@
             document.getElementById('availabilityNotice').classList.add('hidden');
             grecaptcha.reset();
             calculateTotal();
-            updateDestinationSummary();
         }
 
         function openPolicyModal(tab) {
