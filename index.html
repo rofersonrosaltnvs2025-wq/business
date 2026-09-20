@@ -3,173 +3,369 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Now</title>
-    <!-- Tailwind CSS CDN para sa styling -->
+    <title>ROFS TRANSPORTATION SERVICES</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google reCAPTCHA API -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#3b82f6',
+                        primary: '#0284c7',
+                        secondary: '#0369a1',
+                        accent: '#f59e0b',
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
 
-    <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl overflow-hidden border border-slate-100">
-        
-        <!-- Header -->
-        <div class="bg-slate-900 text-white p-6 flex justify-between items-center">
-            <div>
-                <h2 class="text-xl font-bold flex items-center gap-2">
-                    <span>📅</span> Book Now!
-                </h2>
-                <p class="text-slate-400 text-xs mt-1">Fill in the details below to reserve your seat</p>
+    <!-- Web App URL Config -->
+    <script>
+        const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxt-k7bz_3EeWDUqD_GzJcImY0uzn4TGoLF0565KHu1yY65O-IHBV6ImdIwTRyOydND/exec";
+        const RATE_PER_HEAD = 750;
+        const MAX_SEATS = 6;
+        let currentAvailableSeats = 6;
+    </script>
+
+    <!-- Header / Navbar -->
+    <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-primary text-white p-2.5 rounded-xl shadow-md">
+                    <i class="fa-solid fa-van-shuttle text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-900 leading-tight">ROFS</h1>
+                    <p class="text-xs text-slate-500">TRANSPORTATION SERVICES</p>
+                </div>
             </div>
-            <div class="text-right">
-                <span class="text-xs text-slate-400 block">Rate per seat</span>
-                <span class="text-xl font-extrabold text-amber-400">₱750</span>
-            </div>
+            <a href="tel:09123456789" class="hidden sm:flex items-center gap-2 text-sm font-semibold text-primary bg-sky-50 px-3 py-2 rounded-lg hover:bg-sky-100 transition">
+                <i class="fa-solid fa-phone"></i>
+                <span>Contact Us</span>
+            </a>
         </div>
+    </header>
 
-        <!-- Form -->
-        <form id="bookingForm" class="p-6 space-y-4" onsubmit="handleBooking(event)">
-            
-            <!-- Full Name -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Full Name *</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">👤</span>
-                    <input type="text" id="fullName" name="fullName" required placeholder="e.g. Juan Dela Cruz" 
-                        class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm">
-                </div>
-            </div>
+    <!-- Hero Banner -->
+    <section class="bg-gradient-to-r from-sky-700 via-sky-600 to-blue-700 text-white py-10 px-4 shadow-inner">
+        <div class="max-w-3xl mx-auto text-center space-y-3">
+            <span class="inline-block bg-amber-400 text-slate-900 text-xs font-extrabold uppercase px-3 py-1 rounded-full shadow">
+                7-Seater MPV Service
+            </span>
+            <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                SERVICE LOCATION
+            </h2>
+            <p class="text-sky-100 text-base sm:text-lg max-w-xl mx-auto">
+                <strong class="text-amber-300 font-bold">SAN JUAN, MARIKINA, SAN MATEO RIZAL, MONTALBAN</strong>.
+            </p>
+        </div>
+    </section>
 
-            <!-- Mobile Number -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mobile / Contact Number *</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">📱</span>
-                    <input type="tel" id="mobileNumber" name="mobileNumber" required placeholder="e.g. 09171234567" 
-                        class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm">
-                </div>
-            </div>
-
-            <!-- Pickup Address -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Pickup Address (Door-to-Door) *</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">📍</span>
-                    <input type="text" id="pickupAddress" name="pickupAddress" required placeholder="House No., Street, Barangay, City" 
-                        class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm">
-                </div>
-            </div>
-
-            <!-- Destination / Route -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Destination / Route *</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">🔀</span>
-                    <select id="destinationSelect" name="destination" required 
-                        class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm"
-                        onchange="updateDestinationSummary(); checkAvailability();">
-                        <option value="To Wawa Port">To Wawa Port</option>
-                        <option value="From Wawa Port">From Wawa Port</option>
-                        <option value="To Calatagan">To Calatagan</option>
-                        <option value="From Calatagan">From Calatagan</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Travel Date & Number of Passengers -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Main Content -->
+    <main class="flex-grow max-w-3xl w-full mx-auto px-4 py-8">
+        
+        <!-- Booking Card -->
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+            <div class="bg-slate-900 text-white p-5 flex items-center justify-between">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Travel Date *</label>
+                    <h3 class="text-lg font-bold flex items-center gap-2">
+                        <i class="fa-regular fa-calendar-check text-amber-400"></i> Book Now!
+                    </h3>
+                    <p class="text-xs text-slate-400">Fill in the details below to reserve your seat</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs text-slate-400 block">Rate per seat</span>
+                    <span class="text-xl font-bold text-amber-400">₱750</span>
+                </div>
+            </div>
+
+            <form id="bookingForm" onsubmit="handleBookingSubmit(event)" class="p-6 space-y-5">
+                
+                <!-- Full Name -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1" for="customerName">
+                        Full Name <span class="text-red-500">*</span>
+                    </label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">📅</span>
-                        <input type="date" id="travelDate" name="travelDate" required 
-                            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm"
-                            onchange="checkAvailability()">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <i class="fa-regular fa-user"></i>
+                        </span>
+                        <input type="text" id="customerName" required placeholder="e.g. Juan Dela Cruz" 
+                            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm">
                     </div>
-                    <!-- Dito lalabas ang availability notice -->
-                    <div id="availabilityNotice" class="mt-1.5 text-xs font-semibold hidden"></div>
                 </div>
 
+                <!-- Contact Number -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Number of Passengers (Max 6) *</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1" for="phone">
+                        Mobile / Contact Number <span class="text-red-500">*</span>
+                    </label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">👥</span>
-                        <select id="passengersCount" name="passengersCount" 
-                            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm"
-                            onchange="updateTotalAmount()">
-                            <option value="1">1 Passenger</option>
-                            <option value="2">2 Passengers</option>
-                            <option value="3">3 Passengers</option>
-                            <option value="4">4 Passengers</option>
-                            <option value="5">5 Passengers</option>
-                            <option value="6">6 Passengers</option>
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <i class="fa-solid fa-mobile-screen"></i>
+                        </span>
+                        <input type="tel" id="phone" required placeholder="e.g. 09171234567" 
+                            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm">
+                    </div>
+                </div>
+
+                <!-- Pickup Address -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1" for="pickupAddress">
+                        Pickup Address (Door-to-Door) <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </span>
+                        <input type="text" id="pickupAddress" required placeholder="House No., Street, Barangay, City" 
+                            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm">
+                    </div>
+                </div>
+
+                <!-- Destination Selection -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1" for="destinationSelect">
+                        Destination / Route <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <i class="fa-solid fa-route"></i>
+                        </span>
+                        <select id="destinationSelect" name="destination" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm" required onchange="updateDestinationSummary()">
+                            <option value="Pickup Location > Wawa Port">To Wawa Port</option>
+                            <option value="Wawa Port > Your Drop off location">From Wawa Port</option>
+                            <option value="Pickup Location > Calatagan Port">To Calatagan</option>
+                            <option value="Calatagan Port > Your Drop off Location">From Calatagan</option>
                         </select>
                     </div>
                 </div>
-            </div>
 
-            <!-- Summary Box -->
-            <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex justify-between items-center">
-                <div>
-                    <span class="text-xs text-slate-500 block">Destination</span>
-                    <span id="summaryDestination" class="text-sm font-bold text-slate-800">To Wawa Port</span>
+                <!-- Travel Date & Passengers -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1" for="travelDate">
+                            Travel Date <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                <i class="fa-regular fa-calendar"></i>
+                            </span>
+                            <input type="date" id="travelDate" required onchange="checkAvailability()"
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm">
+                        </div>
+                        <!-- Live Availability Status Notice -->
+                        <div id="availabilityNotice" class="mt-1.5 text-xs font-semibold hidden"></div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1" for="passengers">
+                            Number of Passengers (Max 6) <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                <i class="fa-solid fa-users"></i>
+                            </span>
+                            <select id="passengers" onchange="calculateTotal()" 
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-sm">
+                                <option value="1">1 Passenger</option>
+                                <option value="2">2 Passengers</option>
+                                <option value="3">3 Passengers</option>
+                                <option value="4">4 Passengers</option>
+                                <option value="5">5 Passengers</option>
+                                <option value="6">6 Passengers</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="text-right">
-                    <span class="text-xs text-slate-500 block">Total Amount</span>
-                    <span id="totalAmountDisplay" class="text-lg font-extrabold text-primary">₱750</span>
+
+                <!-- Summary Breakdown Box -->
+                <div class="bg-sky-50 border border-sky-100 rounded-xl p-4 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs text-sky-800 font-medium">Destination</p>
+                        <p id="summaryDestination" class="text-sm font-bold text-slate-900">Pickup Location > Wawa Port</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs text-sky-800 font-medium">Total Amount</p>
+                        <p id="totalPrice" class="text-2xl font-black text-primary">₱750</p>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Terms and Conditions -->
-            <div class="flex items-start gap-2 pt-2">
-                <input type="checkbox" id="terms" name="terms" required class="mt-1 rounded border-slate-300 text-primary focus:ring-primary">
-                <label for="terms" class="text-xs text-slate-600">
-                    I agree to the <a href="#" class="text-primary underline">Terms & Conditions</a>, <a href="#" class="text-primary underline">Refund Policy</a>, and <a href="#" class="text-primary underline">Privacy Policy</a>.
-                </label>
-            </div>
+                <!-- Policy Acceptance Checkbox -->
+                <div class="flex items-start gap-2 text-xs text-slate-600">
+                    <input type="checkbox" id="policyAgree" required class="mt-0.5 h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary">
+                    <label for="policyAgree">
+                        I agree to the <button type="button" onclick="openPolicyModal('terms')" class="text-primary font-bold underline">Terms & Conditions</button>, 
+                        <button type="button" onclick="openPolicyModal('refund')" class="text-primary font-bold underline">Refund Policy</button>, and 
+                        <button type="button" onclick="openPolicyModal('privacy')" class="text-primary font-bold underline">Privacy Policy</button>.
+                    </label>
+                </div>
 
-            <!-- Submit Button -->
-            <button type="submit" id="submitBtn" 
-                class="w-full bg-sky-400 hover:bg-sky-500 text-white font-bold py-3 px-4 rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-lg shadow-sky-100">
-                <span>✈️</span> Confirm Booking
+                <!-- Google reCAPTCHA Widget -->
+                <div class="flex justify-center my-2">
+                    <div class="g-recaptcha" data-sitekey="6LeIX8UtAAAAADAEZkOQ5rJ6vo7kFFdumYqHbV67"></div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submitBtn" 
+                    class="w-full bg-primary hover:bg-secondary text-white font-bold py-3.5 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>Confirm Booking</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Highlights / Features -->
+        <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
+                <i class="fa-solid fa-house-user text-2xl text-primary mb-2"></i>
+                <h4 class="font-bold text-slate-800 text-sm">Door-to-Door</h4>
+                <p class="text-xs text-slate-500">Pick up right at your doorstep</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
+                <i class="fa-solid fa-couch text-2xl text-primary mb-2"></i>
+                <h4 class="font-bold text-slate-800 text-sm">Comfortable Ride</h4>
+                <p class="text-xs text-slate-500">Clean, air-conditioned 7-seater</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
+                <i class="fa-solid fa-shield-halved text-2xl text-primary mb-2"></i>
+                <h4 class="font-bold text-slate-800 text-sm">PAMI INSURANCE</h4>
+                <p class="text-xs text-slate-500">Registered and safe travel</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center shadow-2xl space-y-4 transform transition-all scale-100">
+            <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-900">Booking Submitted!</h3>
+            <p class="text-sm text-slate-600">
+                Salamat! Natanggap na namin ang iyong booking details at na-record na ito sa aming system. Tatawagan ka namin para sa confirmation ng biyahe.
+            </p>
+            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs text-slate-600 text-left space-y-1">
+                <p><strong>Booking Reference:</strong> <span id="modalRef"></span></p>
+                <p><strong>Name:</strong> <span id="modalName"></span></p>
+                <p><strong>Destination:</strong> <span id="modalDestination"></span></p>
+                <p><strong>Total Fare:</strong> <span id="modalFare"></span></p>
+            </div>
+            <button onclick="closeModal('successModal')" class="w-full bg-slate-900 text-white font-bold py-2.5 rounded-xl hover:bg-slate-800 transition">
+                Close & Done
             </button>
-
-        </form>
+        </div>
     </div>
 
-    <!-- JavaScript Section -->
+    <!-- Legal Policies Modal -->
+    <div id="policyModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
+            
+            <!-- Modal Header / Tabs -->
+            <div class="flex justify-between items-center border-b pb-3 border-slate-200">
+                <div class="flex gap-2">
+                    <button id="tabTerms" onclick="switchPolicyTab('terms')" class="text-xs font-bold px-3 py-1.5 rounded-lg transition bg-primary text-white">Terms & Conditions</button>
+                    <button id="tabRefund" onclick="switchPolicyTab('refund')" class="text-xs font-bold px-3 py-1.5 rounded-lg transition text-slate-600 bg-slate-100 hover:bg-slate-200">Refund Policy</button>
+                    <button id="tabPrivacy" onclick="switchPolicyTab('privacy')" class="text-xs font-bold px-3 py-1.5 rounded-lg transition text-slate-600 bg-slate-100 hover:bg-slate-200">Privacy Policy</button>
+                </div>
+                <button onclick="closeModal('policyModal')" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Tab Content Body (Scrollable) -->
+            <div class="overflow-y-auto pr-2 space-y-4 text-xs text-slate-600 leading-relaxed flex-grow">
+                
+                <!-- Terms & Conditions Content -->
+                <div id="contentTerms" class="space-y-3">
+                    <h4 class="text-sm font-bold text-slate-900 uppercase">Terms & Conditions</h4>
+                    <p>Welcome to <strong>ROFS TRANSPORTATION SERVICES</strong>. By submitting a booking request on our website, you agree to comply with and be bound by the following terms and conditions:</p>
+                    <ul class="list-disc pl-4 space-y-1">
+                        <li><strong>Service Scope:</strong> We provide door-to-door shuttle transfer services operating between designated pickup points and ports using franchised 7-seater passenger vehicles.</li>
+                        <li><strong>Seat Fare:</strong> The standard fare rate is fixed at <strong>₱750 per passenger head</strong>. Maximum booking capacity is set at 6 passengers per vehicle group.</li>
+                        <li><strong>Pickup Guidelines:</strong> Passengers must be ready at their designated door-to-door pickup location 15 minutes prior to the scheduled pickup time. Drivers will wait up to a maximum of 15 minutes before proceeding to keep on schedule.</li>
+                        <li><strong>Luggage Allowance:</strong> Each passenger is allowed 1 medium luggage/bag plus 1 hand-carry item. Oversized luggage must be declared in advance.</li>
+                        <li><strong>Passenger Conduct:</strong> Passengers are expected to maintain courteous conduct. Smoking or consuming alcohol inside the vehicle is strictly prohibited.</li>
+                    </ul>
+                </div>
+
+                <!-- Refund & Cancellation Policy Content -->
+                <div id="contentRefund" class="space-y-3 hidden">
+                    <h4 class="text-sm font-bold text-slate-900 uppercase">Cancellation & Refund Policy</h4>
+                    <p>At <strong>ROFS TRANSPORTATION SERVICES</strong>, we aim to provide fair and transparent cancellation policies for our passengers:</p>
+                    <ul class="list-disc pl-4 space-y-1">
+                        <li><strong>Cancellation 24+ Hours Prior to Departure:</strong> Eligible for <strong>100% full refund</strong> or free rebooking to another date subject to seat availability.</li>
+                        <li><strong>Cancellation Within 12 to 24 Hours:</strong> Eligible for a <strong>50% refund</strong> of the total booking fare.</li>
+                        <li><strong>Cancellation Less Than 12 Hours / No-Show:</strong> Bookings cancelled less than 12 hours before travel or passengers who fail to arrive at pickup location are <strong>non-refundable</strong>.</li>
+                        <li><strong>Operator Cancellations / Typhoon Warnings:</strong> In the event of trip cancellations initiated by ROFS TRANSPORTATION SERVICES due to severe weather or Coast Guard advisories, passengers will receive a <strong>100% full refund</strong> or priority rebooking.</li>
+                        <li><strong>Refund Processing Time:</strong> Approved refunds will be processed back via HitPay/GCash/Bank Transfer within <strong>3 to 5 business days</strong>.</li>
+                    </ul>
+                </div>
+
+                <!-- Privacy Policy Content -->
+                <div id="contentPrivacy" class="space-y-3 hidden">
+                    <h4 class="text-sm font-bold text-slate-900 uppercase">Privacy Policy</h4>
+                    <p><strong>ROFS TRANSPORTATION SERVICES</strong> values your privacy. This policy outlines how we handle your personal information:</p>
+                    <ul class="list-disc pl-4 space-y-1">
+                        <li><strong>Information Collected:</strong> We collect personal details including your Full Name, Mobile Contact Number, Pickup Address, and Travel Dates solely for booking and trip coordination.</li>
+                        <li><strong>Use of Information:</strong> Collected data is strictly used for dispatching drivers, communicating trip updates, confirming payments, and customer support.</li>
+                        <li><strong>Data Protection:</strong> We do not sell, rent, or trade your personal information to third parties. All booking information is processed securely.</li>
+                        <li><strong>Payment Security:</strong> Payment transactions processed via HitPay Payment Gateway adhere to PCI-DSS security compliance standards. We do not store financial card credentials on our servers.</li>
+                        <li><strong>Contact Us:</strong> For data privacy inquiries or deletion requests, contact us via our official contact phone number.</li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="pt-3 border-t border-slate-200 text-right">
+                <button onclick="closeModal('policyModal')" class="bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-secondary transition">
+                    I Understand
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-auto">
+        <div class="max-w-3xl mx-auto px-4 space-y-2">
+            <div class="flex justify-center gap-4 text-slate-600 font-medium">
+                <button onclick="openPolicyModal('terms')" class="hover:text-primary">Terms & Conditions</button>
+                <span>•</span>
+                <button onclick="openPolicyModal('refund')" class="hover:text-primary">Refund Policy</button>
+                <span>•</span>
+                <button onclick="openPolicyModal('privacy')" class="hover:text-primary">Privacy Policy</button>
+            </div>
+            <p>© 2026 ROFS TRANSPORTATION SERVICES. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
     <script>
-        // Palitan ito ng iyong Google Apps Script Web App URL
-        const GOOGLE_SHEET_WEBHOOK_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
-        let currentAvailableSeats = 6;
+        // Set minimum date to today
+        document.getElementById('travelDate').min = new Date().toISOString().split('T')[0];
 
-        // Mag-update ng summary display sa form kapag pinalitan ang route
+        function calculateTotal() {
+            const count = parseInt(document.getElementById('passengers').value);
+            const total = count * RATE_PER_HEAD;
+            document.getElementById('totalPrice').innerText = '₱' + total.toLocaleString();
+        }
+
         function updateDestinationSummary() {
-            const select = document.getElementById('destinationSelect');
-            const summary = document.getElementById('summaryDestination');
-            summary.innerText = select.value;
+            const destinationValue = document.getElementById('destinationSelect').value;
+            document.getElementById('summaryDestination').innerText = destinationValue;
         }
 
-        // Mag-compute ng total amount base sa bilang ng pasahero
-        function updateTotalAmount() {
-            const count = parseInt(document.getElementById('passengersCount').value) || 1;
-            const total = count * 750;
-            document.getElementById('totalAmountDisplay').innerText = `₱${total.toLocaleString()}`;
-        }
-
-        // I-check ang availability sa Google Sheet base sa date at destination
         async function checkAvailability() {
             const selectedDate = document.getElementById('travelDate').value;
-            const selectedDestination = document.getElementById('destinationSelect').value;
             const noticeBox = document.getElementById('availabilityNotice');
             const submitBtn = document.getElementById('submitBtn');
 
@@ -180,19 +376,19 @@
             noticeBox.classList.remove('hidden');
 
             try {
-                const response = await fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?date=${selectedDate}&destination=${encodeURIComponent(selectedDestination)}`);
+                const response = await fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?date=${selectedDate}`);
                 const data = await response.json();
                 
                 currentAvailableSeats = data.availableSeats !== undefined ? data.availableSeats : 6;
 
                 if (currentAvailableSeats <= 0) {
                     noticeBox.className = "mt-1.5 text-xs font-semibold text-red-600";
-                    noticeBox.innerText = "❌ FULLY BOOKED for this date and route. Please choose another date.";
+                    noticeBox.innerText = "❌ FULLY BOOKED for this date. Please choose another date.";
                     submitBtn.disabled = true;
                     submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
                 } else {
                     noticeBox.className = "mt-1.5 text-xs font-semibold text-emerald-600";
-                    noticeBox.innerText = `✅ ${currentAvailableSeats} of 6 seats available for this route.`;
+                    noticeBox.innerText = `✅ ${currentAvailableSeats} of 6 seats available for this date.`;
                     submitBtn.disabled = false;
                     submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                 }
@@ -205,43 +401,79 @@
             }
         }
 
-        // Handle form submission papunta sa Google Sheet
-        async function handleBooking(event) {
+        function handleBookingSubmit(event) {
             event.preventDefault();
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerText = "Processing Booking...";
 
-            const formData = {
-                fullName: document.getElementById('fullName').value,
-                mobileNumber: document.getElementById('mobileNumber').value,
+            const selectedPax = parseInt(document.getElementById('passengers').value);
+            if (selectedPax > currentAvailableSeats) {
+                alert(`Pasensya na, ${currentAvailableSeats} seat(s) na lang ang natitirang available sa napiling petsa.`);
+                return;
+            }
+
+            // Check reCAPTCHA verification
+            const captchaResponse = grecaptcha.getResponse();
+            if (captchaResponse.length === 0) {
+                alert("Pakicheck po muna ang 'I'm not a robot' verification bago mag-submit.");
+                return;
+            }
+
+            const bookingData = {
+                bookingId: 'BOOK-' + Math.floor(10000 + Math.random() * 90000),
+                customerName: document.getElementById('customerName').value,
+                phone: document.getElementById('phone').value,
                 pickupAddress: document.getElementById('pickupAddress').value,
                 destination: document.getElementById('destinationSelect').value,
                 travelDate: document.getElementById('travelDate').value,
-                passengersCount: document.getElementById('passengersCount').value,
-                totalAmount: document.getElementById('passengersCount').value * 750
+                passengers: document.getElementById('passengers').value,
+                totalAmount: '₱' + (selectedPax * RATE_PER_HEAD)
             };
 
-            try {
-                await fetch(GOOGLE_SHEET_WEBHOOK_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
+            // 1. Show Success Modal instantly
+            document.getElementById('modalRef').innerText = bookingData.bookingId;
+            document.getElementById('modalName').innerText = bookingData.customerName;
+            document.getElementById('modalDestination').innerText = bookingData.destination;
+            document.getElementById('modalFare').innerText = bookingData.totalAmount;
+            document.getElementById('successModal').classList.remove('hidden');
 
-                alert("🎉 Booking successfully confirmed!");
-                document.getElementById('bookingForm').reset();
-                document.getElementById('availabilityNotice').classList.add('hidden');
-                updateDestinationSummary();
-                updateTotalAmount();
-            } catch (error) {
-                console.error('Error:', error);
-                alert("❌ There was an error processing your booking. Please try again.");
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerText = "Confirm Booking";
-            }
+            // 2. Send to Google Sheet in background
+            fetch(GOOGLE_SHEET_WEBHOOK_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bookingData)
+            }).catch(error => console.error('Background send error:', error));
+
+            // 3. Reset form and reCAPTCHA
+            document.getElementById('bookingForm').reset();
+            document.getElementById('availabilityNotice').classList.add('hidden');
+            grecaptcha.reset();
+            calculateTotal();
+            updateDestinationSummary();
+        }
+
+        function openPolicyModal(tab) {
+            document.getElementById('policyModal').classList.remove('hidden');
+            switchPolicyTab(tab);
+        }
+
+        function switchPolicyTab(tab) {
+            const tabs = ['terms', 'refund', 'privacy'];
+            tabs.forEach(t => {
+                const tabBtn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+                const content = document.getElementById('content' + t.charAt(0).toUpperCase() + t.slice(1));
+
+                if (t === tab) {
+                    tabBtn.className = "text-xs font-bold px-3 py-1.5 rounded-lg transition bg-primary text-white";
+                    content.classList.remove('hidden');
+                } else {
+                    tabBtn.className = "text-xs font-bold px-3 py-1.5 rounded-lg transition text-slate-600 bg-slate-100 hover:bg-slate-200";
+                    content.classList.add('hidden');
+                }
+            });
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
         }
     </script>
 </body>
