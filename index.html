@@ -328,12 +328,8 @@
             document.getElementById('totalPrice').innerText = '₱' + total.toLocaleString();
         }
 
-        async function handleBookingSubmit(event) {
+        function handleBookingSubmit(event) {
             event.preventDefault();
-
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Submitting...</span>`;
 
             const bookingData = {
                 bookingId: 'EXP-' + Math.floor(100000 + Math.random() * 900000),
@@ -346,32 +342,23 @@
                 totalAmount: '₱' + (parseInt(document.getElementById('passengers').value) * RATE_PER_HEAD)
             };
 
-            try {
-                // Send data to Google Apps Script Web App
-                await fetch(GOOGLE_SHEET_WEBHOOK_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(bookingData)
-                });
+            // 1. Pakita agad ang Success Modal para SOBRANG BILIS sa paningin ng user
+            document.getElementById('modalRef').innerText = bookingData.bookingId;
+            document.getElementById('modalName').innerText = bookingData.customerName;
+            document.getElementById('modalFare').innerText = bookingData.totalAmount;
+            document.getElementById('successModal').classList.remove('hidden');
 
-                // Display success UI
-                document.getElementById('modalRef').innerText = bookingData.bookingId;
-                document.getElementById('modalName').innerText = bookingData.customerName;
-                document.getElementById('modalFare').innerText = bookingData.totalAmount;
-                document.getElementById('successModal').classList.remove('hidden');
+            // 2. I-send sa Google Sheet sa background (hindi na kailangang hintayin ng user)
+            fetch(GOOGLE_SHEET_WEBHOOK_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bookingData)
+            }).catch(error => console.error('Background send error:', error));
 
-                // Reset form
-                document.getElementById('bookingForm').reset();
-                calculateTotal();
-
-            } catch (error) {
-                console.error('Error submitting booking:', error);
-                alert('May kaunting problema sa submission. Pakisubukan ulit o tumawag sa amin.');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> <span>Confirm Booking</span>`;
-            }
+            // 3. Reset ang form
+            document.getElementById('bookingForm').reset();
+            calculateTotal();
         }
 
         function openPolicyModal(tab) {
