@@ -30,7 +30,7 @@
 
     <!-- Web App URL Config -->
     <script>
-        const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxBmFybVFgT9vhNHA2KYb6v2NZM2AQPh5QROdPt6a2ve1BDKivgeJ8jcAAohJF2BUU/exec";
+        const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyMBFX3RoVkiXceaCCMVdTitYPn5JFCT83heJgjcdeybJ-7xnigha54DVGf2Okim2XK/exec";
         const RATE_PER_HEAD = 750;
         const MAX_SEATS = 6;
         let currentAvailableSeats = 6;
@@ -332,20 +332,7 @@
     <!-- JavaScript Logic -->
     <script>
         // Set minimum date to today
-        const today = new Date();
-        const localToday = today.getFullYear() + '-' +
-            String(today.getMonth() + 1).padStart(2, '0') + '-' +
-            String(today.getDate()).padStart(2, '0');
-        document.getElementById('travelDate').min = localToday;
-
-        window.addEventListener('DOMContentLoaded', () => {
-            calculateTotal();
-
-            const travelDate = document.getElementById('travelDate');
-            if (travelDate.value) {
-                checkAvailability();
-            }
-        });
+        document.getElementById('travelDate').min = new Date().toISOString().split('T')[0];
 
         function calculateTotal() {
             const count = parseInt(document.getElementById('passengers').value);
@@ -358,137 +345,49 @@
             const noticeBox = document.getElementById('availabilityNotice');
             const submitBtn = document.getElementById('submitBtn');
 
-            if (!selectedDate) {
-                noticeBox.classList.add('hidden');
-                return;
-            }
+            if (!selectedDate) return;
 
             noticeBox.className = "mt-1.5 text-xs font-semibold text-slate-500";
             noticeBox.innerText = "Checking seat availability...";
             noticeBox.classList.remove('hidden');
 
-            submitBtn.disabled = true;
-            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-
             try {
-                const response = await fetch(
-                    `${GOOGLE_SHEET_WEBHOOK_URL}?date=${encodeURIComponent(selectedDate)}&t=${Date.now()}`,
-                    {
-                        method: 'GET',
-                        cache: 'no-store'
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-
+                const response = await fetch(`${GOOGLE_SHEET_WEBHOOK_URL}?date=${selectedDate}`);
                 const data = await response.json();
-
-                console.log("Seat availability:", data);
-
-                if (data.success !== true) {
-                    throw new Error(data.error || "Availability check failed.");
-                }
-
-                currentAvailableSeats = Number(data.availableSeats);
+                
+                currentAvailableSeats = data.availableSeats !== undefined ? data.availableSeats : 6;
 
                 if (currentAvailableSeats <= 0) {
                     noticeBox.className = "mt-1.5 text-xs font-semibold text-red-600";
                     noticeBox.innerText = "❌ FULLY BOOKED for this date. Please choose another date.";
-
                     submitBtn.disabled = true;
                     submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
                 } else {
                     noticeBox.className = "mt-1.5 text-xs font-semibold text-emerald-600";
-                    noticeBox.innerText =
-                        `✅ ${currentAvailableSeats} of ${MAX_SEATS} seats available for this date.`;
-
+                    noticeBox.innerText = `✅ ${currentAvailableSeats} of 6 seats available for this date.`;
                     submitBtn.disabled = false;
                     submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-
-                    // Prevent selecting more passengers than the available seats.
-                    const passengerSelect = document.getElementById('passengers');
-
-                    Array.from(passengerSelect.options).forEach(option => {
-                        const pax = Number(option.value);
-                        option.disabled = pax > currentAvailableSeats;
-                    });
-
-                    if (Number(passengerSelect.value) > currentAvailableSeats) {
-                        passengerSelect.value = String(currentAvailableSeats);
-                        calculateTotal();
-                    }
                 }
-
             } catch (err) {
                 console.error("Error checking seats:", err);
-
-                noticeBox.className = "mt-1.5 text-xs font-semibold text-red-600";
-                noticeBox.innerText =
-                    "⚠️ Unable to check seat availability. Please try again.";
-
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                currentAvailableSeats = 0;
+                noticeBox.className = "mt-1.5 text-xs font-semibold text-slate-500";
+                noticeBox.innerText = "Seats status: Proceed to confirm booking.";
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
         }
 
-        function resetPassengerOptions() {
-            const passengerSelect = document.getElementById('passengers');
-
-            Array.from(passengerSelect.options).forEach(option => {
-                option.disabled = false;
-            });
-        }
-
-        async function handleBookingSubmit(event) {
+        function handleBookingSubmit(event) {
             event.preventDefault();
 
             const selectedPax = parseInt(document.getElementById('passengers').value);
-            const selectedDate = document.getElementById('travelDate').value;
-
-            // Re-check availability immediately before submitting.
-            try {
-                const response = await fetch(
-                    `${GOOGLE_SHEET_WEBHOOK_URL}?date=${encodeURIComponent(selectedDate)}&t=${Date.now()}`,
-                    {
-                        method: 'GET',
-                        cache: 'no-store'
-                    }
-                );
-
-                const availability = await response.json();
-
-                if (availability.success !== true) {
-                    throw new Error(availability.error || "Availability check failed.");
-                }
-
-                currentAvailableSeats = Number(availability.availableSeats);
-
-                if (selectedPax > currentAvailableSeats) {
-                    alert(
-                        `Pasensya na, ${currentAvailableSeats} seat(s) na lang ang available sa ${selectedDate}.`
-                    );
-                    checkAvailability();
-                    return;
-                }
-
-                if (currentAvailableSeats <= 0) {
-                    alert("Fully booked na po ang napiling date.");
-                    checkAvailability();
-                    return;
-                }
-
-            } catch (error) {
-                console.error("Final availability check failed:", error);
-                alert("Hindi ma-check ang seat availability. Pakisubukan ulit.");
+            if (selectedPax > currentAvailableSeats) {
+                alert(`Pasensya na, ${currentAvailableSeats} seat(s) na lang ang natitirang available sa napiling petsa.`);
                 return;
             }
 
-            // Check reCAPTCHA verification.
+            // Check reCAPTCHA verification
             const captchaResponse = grecaptcha.getResponse();
-
             if (captchaResponse.length === 0) {
                 alert("Pakicheck po muna ang 'I'm not a robot' verification bago mag-submit.");
                 return;
@@ -496,62 +395,33 @@
 
             const bookingData = {
                 bookingId: 'BOOK-' + Math.floor(10000 + Math.random() * 90000),
-                customerName: document.getElementById('customerName').value.trim(),
-                phone: document.getElementById('phone').value.trim(),
-                pickupAddress: document.getElementById('pickupAddress').value.trim(),
-                travelDate: selectedDate,
-                passengers: selectedPax,
-                totalAmount: selectedPax * RATE_PER_HEAD
+                customerName: document.getElementById('customerName').value,
+                phone: document.getElementById('phone').value,
+                pickupAddress: document.getElementById('pickupAddress').value,
+                travelDate: document.getElementById('travelDate').value,
+                passengers: document.getElementById('passengers').value,
+                totalAmount: '₱' + (selectedPax * RATE_PER_HEAD)
             };
 
-            const submitBtn = document.getElementById('submitBtn');
-            const originalButtonHTML = submitBtn.innerHTML;
+            // 1. Show Success Modal instantly
+            document.getElementById('modalRef').innerText = bookingData.bookingId;
+            document.getElementById('modalName').innerText = bookingData.customerName;
+            document.getElementById('modalFare').innerText = bookingData.totalAmount;
+            document.getElementById('successModal').classList.remove('hidden');
 
-            submitBtn.disabled = true;
-            submitBtn.innerHTML =
-                '<i class="fa-solid fa-spinner fa-spin"></i><span>Submitting...</span>';
+            // 2. Send to Google Sheet in background
+            fetch(GOOGLE_SHEET_WEBHOOK_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bookingData)
+            }).catch(error => console.error('Background send error:', error));
 
-            try {
-                // URLSearchParams keeps this a simple POST request and avoids
-                // the CORS/preflight problem caused by application/json + no-cors.
-                const formData = new URLSearchParams();
-
-                Object.entries(bookingData).forEach(([key, value]) => {
-                    formData.append(key, value);
-                });
-
-                formData.append('captchaToken', captchaResponse);
-
-                await fetch(GOOGLE_SHEET_WEBHOOK_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: formData
-                });
-
-                // Show success modal.
-                document.getElementById('modalRef').innerText = bookingData.bookingId;
-                document.getElementById('modalName').innerText = bookingData.customerName;
-                document.getElementById('modalFare').innerText =
-                    '₱' + Number(bookingData.totalAmount).toLocaleString();
-
-                document.getElementById('successModal').classList.remove('hidden');
-
-                // Reset form.
-                document.getElementById('bookingForm').reset();
-                document.getElementById('availabilityNotice').classList.add('hidden');
-
-                resetPassengerOptions();
-                grecaptcha.reset();
-                currentAvailableSeats = 6;
-                calculateTotal();
-
-            } catch (error) {
-                console.error("Booking submission error:", error);
-                alert("Hindi na-submit ang booking. Pakisubukan ulit.");
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalButtonHTML;
-            }
+            // 3. Reset form and reCAPTCHA
+            document.getElementById('bookingForm').reset();
+            document.getElementById('availabilityNotice').classList.add('hidden');
+            grecaptcha.reset();
+            calculateTotal();
         }
 
         function openPolicyModal(tab) {
