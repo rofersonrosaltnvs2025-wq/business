@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ROFS TRANSPORTAION SERVICES</title>
+    <title>ROFS TRANSPORTATION SERVICES</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -28,7 +28,7 @@
     <script>
         const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx3ndtyGrRSP5dqV7I74yJa8be58q8Gk2fzTmnL2pwzCSN166DU3hDxWTtDFWJyHKdK/exec";
         const RATE_PER_HEAD = 650;
-        const MAX_SEATS = 7;
+        const MAX_SEATS = 6;
     </script>
 
     <!-- Header / Navbar -->
@@ -175,6 +175,16 @@
                     </div>
                 </div>
 
+                <!-- Policy Acceptance Checkbox -->
+                <div class="flex items-start gap-2 text-xs text-slate-600">
+                    <input type="checkbox" id="policyAgree" required class="mt-0.5 h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary">
+                    <label for="policyAgree">
+                        I agree to the <button type="button" onclick="openPolicyModal('terms')" class="text-primary font-bold underline">Terms & Conditions</button>, 
+                        <button type="button" onclick="openPolicyModal('refund')" class="text-primary font-bold underline">Refund Policy</button>, and 
+                        <button type="button" onclick="openPolicyModal('privacy')" class="text-primary font-bold underline">Privacy Policy</button>.
+                    </label>
+                </div>
+
                 <!-- Submit Button -->
                 <button type="submit" id="submitBtn" 
                     class="w-full bg-primary hover:bg-secondary text-white font-bold py-3.5 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex justify-center items-center gap-2">
@@ -192,7 +202,7 @@
                 <p class="text-xs text-slate-500">Pick up right at your doorstep</p>
             </div>
             <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
-                <i class="fa-solid fa-[#0284c7] fa-couch text-2xl text-primary mb-2"></i>
+                <i class="fa-solid fa-couch text-2xl text-primary mb-2"></i>
                 <h4 class="font-bold text-slate-800 text-sm">Comfortable Ride</h4>
                 <p class="text-xs text-slate-500">Clean, air-conditioned 7-seater</p>
             </div>
@@ -220,15 +230,91 @@
                 <p><strong>Name:</strong> <span id="modalName"></span></p>
                 <p><strong>Total Fare:</strong> <span id="modalFare"></span></p>
             </div>
-            <button onclick="closeModal()" class="w-full bg-slate-900 text-white font-bold py-2.5 rounded-xl hover:bg-slate-800 transition">
+            <button onclick="closeModal('successModal')" class="w-full bg-slate-900 text-white font-bold py-2.5 rounded-xl hover:bg-slate-800 transition">
                 Close & Done
             </button>
         </div>
     </div>
 
+    <!-- Legal Policies Modal -->
+    <div id="policyModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
+            
+            <!-- Modal Header / Tabs -->
+            <div class="flex justify-between items-center border-b pb-3 border-slate-200">
+                <div class="flex gap-2">
+                    <button id="tabTerms" onclick="switchPolicyTab('terms')" class="text-xs font-bold px-3 py-1.5 rounded-lg transition bg-primary text-white">Terms & Conditions</button>
+                    <button id="tabRefund" onclick="switchPolicyTab('refund')" class="text-xs font-bold px-3 py-1.5 rounded-lg transition text-slate-600 bg-slate-100 hover:bg-slate-200">Refund Policy</button>
+                    <button id="tabPrivacy" onclick="switchPolicyTab('privacy')" class="text-xs font-bold px-3 py-1.5 rounded-lg transition text-slate-600 bg-slate-100 hover:bg-slate-200">Privacy Policy</button>
+                </div>
+                <button onclick="closeModal('policyModal')" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Tab Content Body (Scrollable) -->
+            <div class="overflow-y-auto pr-2 space-y-4 text-xs text-slate-600 leading-relaxed flex-grow">
+                
+                <!-- Terms & Conditions Content -->
+                <div id="contentTerms" class="space-y-3">
+                    <h4 class="text-sm font-bold text-slate-900 uppercase">Terms & Conditions</h4>
+                    <p>Welcome to <strong>ROFS TRANSPORTATION SERVICES</strong>. By submitting a booking request on our website, you agree to comply with and be bound by the following terms and conditions:</p>
+                    <ul class="list-disc pl-4 space-y-1">
+                        <li><strong>Service Scope:</strong> We provide door-to-door shuttle transfer services operating between designated pickup points and Wawa Port Batangas using franchised 7-seater passenger vehicles.</li>
+                        <li><strong>Seat Fare:</strong> The standard fare rate is fixed at <strong>₱650 per passenger head</strong>. Maximum booking capacity is set at 6 passengers per vehicle group.</li>
+                        <li><strong>Pickup Guidelines:</strong> Passengers must be ready at their designated door-to-door pickup location 15 minutes prior to the scheduled pickup time. Drivers will wait up to a maximum of 15 minutes before proceeding to keep on schedule.</li>
+                        <li><strong>Luggage Allowance:</strong> Each passenger is allowed 1 medium luggage/bag plus 1 hand-carry item. Oversized luggage must be declared in advance.</li>
+                        <li><strong>Passenger Conduct:</strong> Passengers are expected to maintain courteous conduct. Smoking or consuming alcohol inside the vehicle is strictly prohibited.</li>
+                    </ul>
+                </div>
+
+                <!-- Refund & Cancellation Policy Content -->
+                <div id="contentRefund" class="space-y-3 hidden">
+                    <h4 class="text-sm font-bold text-slate-900 uppercase">Cancellation & Refund Policy</h4>
+                    <p>At <strong>ROFS TRANSPORTATION SERVICES</strong>, we aim to provide fair and transparent cancellation policies for our passengers:</p>
+                    <ul class="list-disc pl-4 space-y-1">
+                        <li><strong>Cancellation 24+ Hours Prior to Departure:</strong> Eligible for <strong>100% full refund</strong> or free rebooking to another date subject to seat availability.</li>
+                        <li><strong>Cancellation Within 12 to 24 Hours:</strong> Eligible for a <strong>50% refund</strong> of the total booking fare.</li>
+                        <li><strong>Cancellation Less Than 12 Hours / No-Show:</strong> Bookings cancelled less than 12 hours before travel or passengers who fail to arrive at pickup location are <strong>non-refundable</strong>.</li>
+                        <li><strong>Operator Cancellations / Typhoon Warnings:</strong> In the event of trip cancellations initiated by ROFS TRANSPORTATION SERVICES due to severe weather or Coast Guard advisories, passengers will receive a <strong>100% full refund</strong> or priority rebooking.</li>
+                        <li><strong>Refund Processing Time:</strong> Approved refunds will be processed back via HitPay/GCash/Bank Transfer within <strong>3 to 5 business days</strong>.</li>
+                    </ul>
+                </div>
+
+                <!-- Privacy Policy Content -->
+                <div id="contentPrivacy" class="space-y-3 hidden">
+                    <h4 class="text-sm font-bold text-slate-900 uppercase">Privacy Policy</h4>
+                    <p><strong>ROFS TRANSPORTATION SERVICES</strong> values your privacy. This policy outlines how we handle your personal information:</p>
+                    <ul class="list-disc pl-4 space-y-1">
+                        <li><strong>Information Collected:</strong> We collect personal details including your Full Name, Mobile Contact Number, Pickup Address, and Travel Dates solely for booking and trip coordination.</li>
+                        <li><strong>Use of Information:</strong> Collected data is strictly used for dispatching drivers, communicating trip updates, confirming payments, and customer support.</li>
+                        <li><strong>Data Protection:</strong> We do not sell, rent, or trade your personal information to third parties. All booking information is processed securely.</li>
+                        <li><strong>Payment Security:</strong> Payment transactions processed via HitPay Payment Gateway adhere to PCI-DSS security compliance standards. We do not store financial card credentials on our servers.</li>
+                        <li><strong>Contact Us:</strong> For data privacy inquiries or deletion requests, contact us via our official contact phone number.</li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="pt-3 border-t border-slate-200 text-right">
+                <button onclick="closeModal('policyModal')" class="bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-secondary transition">
+                    I Understand
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-auto">
-        <p>© 2026 ROFS TRANSPORTATION SERVICES. All rights reserved.</p>
+        <div class="max-w-3xl mx-auto px-4 space-y-2">
+            <div class="flex justify-center gap-4 text-slate-600 font-medium">
+                <button onclick="openPolicyModal('terms')" class="hover:text-primary">Terms & Conditions</button>
+                <span>•</span>
+                <button onclick="openPolicyModal('refund')" class="hover:text-primary">Refund Policy</button>
+                <span>•</span>
+                <button onclick="openPolicyModal('privacy')" class="hover:text-primary">Privacy Policy</button>
+            </div>
+            <p>© 2026 ROFS TRANSPORTATION SERVICES. All rights reserved.</p>
+        </div>
     </footer>
 
     <!-- JavaScript Logic -->
@@ -284,12 +370,33 @@
                 alert('May kaunting problema sa submission. Pakisubukan ulit o tumawag sa amin.');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> <span>Confirm Booking Now</span>`;
+                submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> <span>Confirm Booking</span>`;
             }
         }
 
-        function closeModal() {
-            document.getElementById('successModal').classList.add('hidden');
+        function openPolicyModal(tab) {
+            document.getElementById('policyModal').classList.remove('hidden');
+            switchPolicyTab(tab);
+        }
+
+        function switchPolicyTab(tab) {
+            const tabs = ['terms', 'refund', 'privacy'];
+            tabs.forEach(t => {
+                const tabBtn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+                const content = document.getElementById('content' + t.charAt(0).toUpperCase() + t.slice(1));
+
+                if (t === tab) {
+                    tabBtn.className = "text-xs font-bold px-3 py-1.5 rounded-lg transition bg-primary text-white";
+                    content.classList.remove('hidden');
+                } else {
+                    tabBtn.className = "text-xs font-bold px-3 py-1.5 rounded-lg transition text-slate-600 bg-slate-100 hover:bg-slate-200";
+                    content.classList.add('hidden');
+                }
+            });
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
         }
     </script>
 </body>
