@@ -30,7 +30,7 @@
 
     <!-- Web App URL Config -->
     <script>
-        const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwTD92q0Lw_PsMC4kw4DAokTnhDgtZp4PCXRu6bemLiG14CbZMj5aQ-K61VGwGWxVcB/exec";
+        const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzqbi5j2iNBVckM5If9x03Ft8KeJFzhpAb9hcdmhn3p4LBKtOGGDcqnvTuCcNPaRgyJ/exec";
         const RATE_PER_HEAD = 750;
         const MAX_SEATS = 6;
         let currentAvailableSeats = 6;
@@ -394,8 +394,7 @@
             }
 
             const bookingData = {
-                bookingId: 'BOOK-' + Math.floor(100000 + Math.random() * 900000),
-                timestamp: new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }),
+                bookingId: 'BOOK-' + Math.floor(10000 + Math.random() * 90000),
                 customerName: document.getElementById('customerName').value,
                 phone: document.getElementById('phone').value,
                 pickupAddress: document.getElementById('pickupAddress').value,
